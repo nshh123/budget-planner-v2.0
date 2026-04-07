@@ -78,7 +78,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="header">
-        <h1>Budget Dashboard</h1>
+        <h1>Budget Manager_ v2.0</h1>
         <button 
           className="dark-mode-toggle" 
           onClick={() => setDarkMode(!darkMode)}
