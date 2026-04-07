@@ -1,16 +1,18 @@
-# React + Vite
+# Budget Planner v2.0
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive, and beautiful budget planning application built with React and Vite. 
 
-Currently, two official plugins are available:
+## Features
+- **Expense Tracking:** Effortlessly add and monitor your daily expenses.
+- **Interactive Data Visualization:** Gain insights with a custom, interactive Donut Chart that shows spending by category (Housing, Food, Utilities, Transport, Entertainment).
+- **Persistent Storage:** Your budget and expense data is seamlessly saved locally in your browser so you never lose track.
+- **Glassmorphism Design & Dark Mode:** Enjoy a stunning UI featuring soft shadows, modern fonts, and a one-click Dark Mode that transforms the visual aesthetic.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
+- Frontend: React + Vite
+- Styling: Vanilla CSS (Flexbox/Grid, CSS Modules structure)
+- Data: Web Storage API (`localStorage`)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Running Locally
+1. `npm install`
+2. `npm run dev`
