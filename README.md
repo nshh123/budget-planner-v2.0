@@ -13,6 +13,10 @@ A modern, responsive, and beautiful budget planning application built with React
 - Styling: Vanilla CSS (Flexbox/Grid, CSS Modules structure)
 - Data: Web Storage API (`localStorage`)
 
+## Access Online
+
+Visit: https://budget-planner-v2-0.vercel.app/
+
 ## Running Locally
 1. `npm install`
 2. `npm run dev`
