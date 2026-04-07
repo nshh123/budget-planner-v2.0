@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80');
+  --app-bg: rgba(255, 255, 255, 0.85);
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --red-color: #ef4444;
+  --green-color: #10b981;
+  --blue-color: #3b82f6;
+  --category-housing: #3b82f6;
+  --category-food: #f43f5e;
+  --category-utilities: #eab308;
+  --category-transport: #a855f7;
+  --category-entertainment: #f97316;
+}
+
+:root[data-theme="dark"] {
+  --bg-image: url('https://images.unsplash.com/photo-1531366936337-7785a0ce5660?auto=format&fit=crop&w=2000&q=80');
+  --app-bg: rgba(30, 41, 59, 0.85);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --card-bg: #0f172a;
+  /* Adjust colors a bit for dark mode if needed */
+  --red-color: #f87171;
+  --green-color: #34d399;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-primary);
+  padding: 1rem;
+  background-color: #0f172a;
+}
+
+#root {
+  width: 100%;
+  max-width: 800px;
+}
