@@ -168,6 +168,17 @@ function App() {
           </ul>
         )}
       </div>
+      <footer
+        style={{
+          textAlign: "center",
+          marginTop: "30px",
+          color: "#888888",
+          fontSize: "14px",
+          fontWeight: "500",
+        }}
+      >
+        Created by @nsam
+      </footer>
     </div>
   );
 }
