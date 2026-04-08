@@ -122,16 +122,16 @@ function App() {
     if (!descInput.trim() || !amountInput || parseFloat(amountInput) <= 0) return;
 
     if (editingExpenseId) {
-      setExpenses(expenses.map(exp => 
-        exp.id === editingExpenseId 
-        ? {
+      setExpenses(expenses.map(exp =>
+        exp.id === editingExpenseId
+          ? {
             ...exp,
             description: descInput,
             amount: parseFloat(amountInput).toFixed(2),
             category: categoryInput,
             timestamp: new Date(datetimeInput).toISOString()
           }
-        : exp
+          : exp
       ));
       setEditingExpenseId(null);
     } else {
@@ -154,17 +154,17 @@ function App() {
     setDescInput(expense.description);
     setAmountInput(expense.amount);
     setCategoryInput(expense.category);
-    
+
     if (expense.timestamp) {
-       const d = new Date(expense.timestamp);
-       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-       setDatetimeInput(d.toISOString().slice(0, 16));
+      const d = new Date(expense.timestamp);
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      setDatetimeInput(d.toISOString().slice(0, 16));
     } else {
-       setDatetimeInput(getCurrentDateTimeLocal());
+      setDatetimeInput(getCurrentDateTimeLocal());
     }
-    
+
     setEditingExpenseId(expense.id);
-    
+
     const formSection = document.querySelector('.add-expense-section');
     if (formSection) {
       formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -185,13 +185,13 @@ function App() {
     if (filteredExpenses.length === 0) return;
 
     const headers = ["Date", "Description", "Category", "Amount (Rwf)"];
-    
+
     const csvContent = [
       headers.join(","),
       ...filteredExpenses.map(e => {
         const desc = `"${e.description.replace(/"/g, '""')}"`;
-        const date = e.timestamp 
-          ? new Date(e.timestamp).toLocaleString() 
+        const date = e.timestamp
+          ? new Date(e.timestamp).toLocaleString()
           : "Unknown Date";
         return `"${date}",${desc},"${e.category}",${e.amount}`;
       })
@@ -199,7 +199,7 @@ function App() {
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', `budget_export_${selectedMonth}.csv`);
@@ -211,9 +211,9 @@ function App() {
   return (
     <div className="app-container">
       <div className="header">
-        <h1>Budget Manager_v2.0</h1>
-        <button 
-          className="dark-mode-toggle" 
+        <h1>Budget Planner_v2.0</h1>
+        <button
+          className="dark-mode-toggle"
           onClick={() => setDarkMode(!darkMode)}
         >
           {darkMode ? 'Light Mode' : 'Dark Mode'}
@@ -222,7 +222,7 @@ function App() {
 
       <div className="dashboard-controls">
         {isAddingMonth ? (
-          <input 
+          <input
             type="month"
             className="month-selector"
             style={{ width: 'auto' }}
@@ -239,7 +239,7 @@ function App() {
           />
         ) : (
           <div style={{ display: 'flex', gap: '8px' }}>
-            <select 
+            <select
               className="month-selector"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
@@ -251,8 +251,8 @@ function App() {
                 return <option key={m} value={m}>{monthName}</option>;
               })}
             </select>
-            <button 
-              className="month-selector add-month-btn" 
+            <button
+              className="month-selector add-month-btn"
               onClick={() => setIsAddingMonth(true)}
               aria-label="Add new month"
               title="Add a different month"
@@ -268,20 +268,20 @@ function App() {
           <div className="stat-title">Total Budget</div>
           <div className="stat-amount budget">
             {isEditingBudget ? (
-              <input 
+              <input
                 type="number"
                 value={budgetInput}
                 onChange={(e) => setBudgetInput(e.target.value)}
                 onBlur={handleSaveBudget}
                 onKeyDown={handleBudgetKeyDown}
                 autoFocus
-                style={{ 
-                  width: '100px', 
-                  fontSize: '20px', 
-                  fontWeight: '700', 
-                  fontFamily: 'inherit', 
-                  border: '1px solid var(--border-color)', 
-                  borderRadius: '6px', 
+                style={{
+                  width: '100px',
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  fontFamily: 'inherit',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
                   padding: '2px 8px',
                   background: 'var(--app-bg)',
                   color: 'var(--text-primary)'
@@ -306,10 +306,10 @@ function App() {
       </div>
 
       <div className="progress-container">
-        <div 
-          className="progress-fill" 
-          style={{ 
-            width: `${Math.min(spentPercentage, 100)}%`, 
+        <div
+          className="progress-fill"
+          style={{
+            width: `${Math.min(spentPercentage, 100)}%`,
             backgroundColor: spentPercentage < 50 ? 'var(--green-color)' : spentPercentage < 85 ? 'var(--category-utilities)' : 'var(--red-color)'
           }}
         ></div>
@@ -323,40 +323,40 @@ function App() {
       <div className="add-expense-section">
         <h2 className="section-title">{editingExpenseId ? 'Edit Expense' : 'Add New Expense'}</h2>
         <form className="expense-form" onSubmit={handleAddExpense}>
-          <input 
-            type="text" 
-            placeholder="What did you buy?" 
+          <input
+            type="text"
+            placeholder="What did you buy?"
             value={descInput}
             onChange={(e) => setDescInput(e.target.value)}
             required
           />
-          <input 
-            type="number" 
-            placeholder="Amount" 
+          <input
+            type="number"
+            placeholder="Amount"
             min="0.01"
             step="0.01"
             value={amountInput}
             onChange={(e) => setAmountInput(e.target.value)}
             required
           />
-          <select 
-            value={categoryInput} 
+          <select
+            value={categoryInput}
             onChange={(e) => setCategoryInput(e.target.value)}
           >
             {CATEGORIES.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          <input 
-            type="datetime-local" 
+          <input
+            type="datetime-local"
             value={datetimeInput}
             onChange={(e) => setDatetimeInput(e.target.value)}
             required
           />
           <button type="submit">{editingExpenseId ? 'Update' : 'Add'}</button>
           {editingExpenseId && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="cancel-btn"
               onClick={() => {
                 setEditingExpenseId(null);
@@ -394,8 +394,8 @@ function App() {
                 <div className="transaction-info">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span className="transaction-name">{expense.description}</span>
-                    <button 
-                      className="edit-btn" 
+                    <button
+                      className="edit-btn"
                       onClick={() => handleEditClick(expense)}
                       aria-label="Edit expense"
                     >
@@ -403,16 +403,16 @@ function App() {
                     </button>
                   </div>
                   <span className="transaction-category">
-                    {expense.category} 
-                    {expense.timestamp && ` • ${new Date(expense.timestamp).toLocaleString(undefined, { 
-                      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                    {expense.category}
+                    {expense.timestamp && ` • ${new Date(expense.timestamp).toLocaleString(undefined, {
+                      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}`}
                   </span>
                 </div>
                 <div className="transaction-right">
                   <span className="transaction-amount">-Rwf {formatCurrency(expense.amount)}</span>
-                  <button 
-                    className="delete-btn" 
+                  <button
+                    className="delete-btn"
                     onClick={() => handleDeleteExpense(expense.id)}
                     aria-label="Delete expense"
                   >
