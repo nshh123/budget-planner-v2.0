@@ -17,10 +17,25 @@ const getCurrentDateTimeLocal = () => {
   return now.toISOString().slice(0, 16);
 };
 
+const getCurrentMonthYYYYMM = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+};
+
+const getExpenseMonth = (expense) => {
+  if (!expense.timestamp) return getCurrentMonthYYYYMM();
+  return expense.timestamp.slice(0, 7);
+};
+
 function App() {
-  const [budget, setBudget] = useState(() => {
-    const saved = localStorage.getItem('budgetPlanner_budget');
-    return saved !== null ? parseFloat(saved) : 4500;
+  const [budgets, setBudgets] = useState(() => {
+    const saved = localStorage.getItem('budgetPlanner_budgets');
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+    const oldBudget = localStorage.getItem('budgetPlanner_budget');
+    const defaultBudget = oldBudget !== null ? parseFloat(oldBudget) : 4500;
+    return { [getCurrentMonthYYYYMM()]: defaultBudget };
   });
 
   const [expenses, setExpenses] = useState(() => {
@@ -39,11 +54,12 @@ function App() {
   const [datetimeInput, setDatetimeInput] = useState(getCurrentDateTimeLocal);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthYYYYMM());
 
   // Sync to local storage
   useEffect(() => {
-    localStorage.setItem('budgetPlanner_budget', budget);
-  }, [budget]);
+    localStorage.setItem('budgetPlanner_budgets', JSON.stringify(budgets));
+  }, [budgets]);
 
   useEffect(() => {
     localStorage.setItem('budgetPlanner_expenses', JSON.stringify(expenses));
@@ -58,18 +74,38 @@ function App() {
     }
   }, [darkMode]);
 
-  const totalSpent = expenses.reduce((acc, curr) => acc + parseFloat(curr.amount), 0);
-  const remaining = budget - totalSpent;
+  const availableMonths = Array.from(new Set(expenses.map(e => getExpenseMonth(e))));
+  if (!availableMonths.includes(getCurrentMonthYYYYMM())) {
+    availableMonths.push(getCurrentMonthYYYYMM());
+  }
+  availableMonths.sort().reverse(); // Newest first
+
+  const filteredExpenses = expenses.filter(e => getExpenseMonth(e) === selectedMonth);
+
+  const getActiveBudget = () => {
+    if (budgets[selectedMonth]) return budgets[selectedMonth];
+    const sortedMonths = Object.keys(budgets).sort().reverse();
+    if (sortedMonths.length > 0) return budgets[sortedMonths[0]];
+    return 4500;
+  };
+
+  const activeBudget = getActiveBudget();
+  const totalSpent = filteredExpenses.reduce((acc, curr) => acc + parseFloat(curr.amount), 0);
+  const remaining = activeBudget - totalSpent;
+  const spentPercentage = activeBudget > 0 ? (totalSpent / activeBudget) * 100 : 0;
 
   const handleEditBudget = () => {
-    setBudgetInput(budget.toString());
+    setBudgetInput(activeBudget.toString());
     setIsEditingBudget(true);
   };
 
   const handleSaveBudget = () => {
     const parsed = parseFloat(budgetInput);
     if (!isNaN(parsed) && parsed > 0) {
-      setBudget(parsed);
+      setBudgets(prev => ({
+        ...prev,
+        [selectedMonth]: parsed
+      }));
     }
     setIsEditingBudget(false);
   };
@@ -102,6 +138,39 @@ function App() {
     setExpenses(expenses.filter(e => e.id !== id));
   };
 
+  const handleClearMonth = () => {
+    if (window.confirm("Are you sure you want to permanently delete all expenses for this month?")) {
+      setExpenses(expenses.filter(e => getExpenseMonth(e) !== selectedMonth));
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (filteredExpenses.length === 0) return;
+
+    const headers = ["Date", "Description", "Category", "Amount (Rwf)"];
+    
+    const csvContent = [
+      headers.join(","),
+      ...filteredExpenses.map(e => {
+        const desc = `"${e.description.replace(/"/g, '""')}"`;
+        const date = e.timestamp 
+          ? new Date(e.timestamp).toLocaleString() 
+          : "Unknown Date";
+        return `"${date}",${desc},"${e.category}",${e.amount}`;
+      })
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `budget_export_${selectedMonth}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="app-container">
       <div className="header">
@@ -112,6 +181,21 @@ function App() {
         >
           {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
+      </div>
+
+      <div className="dashboard-controls">
+        <select 
+          className="month-selector"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        >
+          {availableMonths.map(m => {
+            const [year, month] = m.split('-');
+            const date = new Date(year, parseInt(month) - 1);
+            const monthName = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+            return <option key={m} value={m}>{monthName}</option>;
+          })}
+        </select>
       </div>
 
       <div className="stats-container">
@@ -140,7 +224,7 @@ function App() {
               />
             ) : (
               <>
-                Rwf {formatCurrency(budget)}
+                Rwf {formatCurrency(activeBudget)}
                 <span className="edit-link" onClick={handleEditBudget}>Edit</span>
               </>
             )}
@@ -156,9 +240,19 @@ function App() {
         </div>
       </div>
 
+      <div className="progress-container">
+        <div 
+          className="progress-fill" 
+          style={{ 
+            width: `${Math.min(spentPercentage, 100)}%`, 
+            backgroundColor: spentPercentage < 50 ? 'var(--green-color)' : spentPercentage < 85 ? 'var(--category-utilities)' : 'var(--red-color)'
+          }}
+        ></div>
+      </div>
+
       <div className="chart-section">
         <h2 className="chart-title">Spending Breakdown</h2>
-        <DonutChart expenses={expenses} />
+        <DonutChart expenses={filteredExpenses} />
       </div>
 
       <div className="add-expense-section">
@@ -199,12 +293,24 @@ function App() {
       </div>
 
       <div className="recent-transactions">
-        <h2 className="section-title">Recent Transactions</h2>
-        {expenses.length === 0 ? (
+        <div className="transactions-header">
+          <h2 className="section-title">Recent Transactions</h2>
+          {filteredExpenses.length > 0 && (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="export-csv-btn" onClick={handleExportCSV}>
+                Export CSV
+              </button>
+              <button className="clear-month-btn" onClick={handleClearMonth}>
+                Clear Month
+              </button>
+            </div>
+          )}
+        </div>
+        {filteredExpenses.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>No transactions yet.</p>
         ) : (
           <ul className="transaction-list">
-            {expenses.map(expense => (
+            {filteredExpenses.map(expense => (
               <li key={expense.id} className="transaction-item">
                 <div className="transaction-info">
                   <span className="transaction-name">{expense.description}</span>
