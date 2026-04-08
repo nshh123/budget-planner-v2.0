@@ -118,6 +118,8 @@ function App() {
   };
   const { minDate, maxDate } = getMinMaxForMonth(selectedMonth);
 
+  const isFutureDate = datetimeInput ? new Date(datetimeInput) > new Date() : false;
+
   const handleEditBudget = () => {
     setBudgetInput(activeBudget.toString());
     setIsEditingBudget(true);
@@ -348,7 +350,7 @@ function App() {
         <form className="expense-form" onSubmit={handleAddExpense}>
           <input
             type="text"
-            placeholder="What did you buy?"
+            placeholder={isFutureDate ? "What will you buy?" : "What did you buy?"}
             value={descInput}
             onChange={(e) => setDescInput(e.target.value)}
             required
