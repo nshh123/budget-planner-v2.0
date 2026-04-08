@@ -25,7 +25,7 @@ const DonutChart = ({ expenses }) => {
   }, {});
 
   const total = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
-  
+
   if (total === 0) {
     return <div className="no-expenses-msg">No expenses added yet.</div>;
   }
@@ -39,11 +39,11 @@ const DonutChart = ({ expenses }) => {
   const chartSegments = Object.keys(categoryTotals).map((category, index) => {
     const value = categoryTotals[category];
     const percentage = (value / total) * 100;
-    
+
     // Create the stroke dasharray and offset for the current segment
     const dasharray = `${percentage} ${circumference - percentage}`;
     const strokeDashoffset = -currentOffset;
-    
+
     // Update offset for next segment
     currentOffset += percentage;
 
@@ -58,8 +58,8 @@ const DonutChart = ({ expenses }) => {
         strokeWidth="6"
         strokeDasharray={dasharray}
         strokeDashoffset={strokeDashoffset}
-        style={{ 
-          transition: 'all 0.3s ease', 
+        style={{
+          transition: 'stroke-dasharray 1.6s cubic-bezier(0.4, 0, 0.2, 1), stroke-dashoffset 1.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease',
           cursor: 'pointer',
           opacity: selectedCategory ? (selectedCategory === category ? 1 : 0.4) : 1
         }}
@@ -73,15 +73,15 @@ const DonutChart = ({ expenses }) => {
       <div className="chart-svg-container">
         <svg width="100%" height="100%" viewBox="0 0 42 42" className="donut">
           {/* Background ring */}
-          <circle 
-            cx="21" cy="21" r={radius} 
-            fill="transparent" 
-            stroke="var(--border-color)" 
-            strokeWidth="6" 
+          <circle
+            cx="21" cy="21" r={radius}
+            fill="transparent"
+            stroke="var(--border-color)"
+            strokeWidth="6"
           />
           {/* Data segments */}
           {chartSegments}
-          
+
           {/* Center text */}
           {selectedCategory ? (
             <text x="21" y="21" textAnchor="middle" dominantBaseline="middle" fontSize="2.5" fill="var(--text-primary)" style={{ pointerEvents: 'none' }}>
@@ -99,11 +99,11 @@ const DonutChart = ({ expenses }) => {
       </div>
       <div className="chart-legend">
         {Object.keys(categoryTotals).map(category => (
-          <div 
-            key={category} 
+          <div
+            key={category}
             className="legend-item"
-            style={{ 
-              cursor: 'pointer', 
+            style={{
+              cursor: 'pointer',
               opacity: selectedCategory ? (selectedCategory === category ? 1 : 0.4) : 1,
               transition: 'opacity 0.2s'
             }}

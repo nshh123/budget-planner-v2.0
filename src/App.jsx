@@ -55,6 +55,7 @@ function App() {
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthYYYYMM());
+  const [isAddingMonth, setIsAddingMonth] = useState(false);
 
   // Sync to local storage
   useEffect(() => {
@@ -74,10 +75,9 @@ function App() {
     }
   }, [darkMode]);
 
-  const availableMonths = Array.from(new Set(expenses.map(e => getExpenseMonth(e))));
-  if (!availableMonths.includes(getCurrentMonthYYYYMM())) {
-    availableMonths.push(getCurrentMonthYYYYMM());
-  }
+  const monthsFromExpenses = expenses.map(e => getExpenseMonth(e));
+  const monthsFromBudgets = Object.keys(budgets);
+  const availableMonths = Array.from(new Set([...monthsFromExpenses, ...monthsFromBudgets, getCurrentMonthYYYYMM()]));
   availableMonths.sort().reverse(); // Newest first
 
   const filteredExpenses = expenses.filter(e => getExpenseMonth(e) === selectedMonth);
@@ -184,18 +184,46 @@ function App() {
       </div>
 
       <div className="dashboard-controls">
-        <select 
-          className="month-selector"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-        >
-          {availableMonths.map(m => {
-            const [year, month] = m.split('-');
-            const date = new Date(year, parseInt(month) - 1);
-            const monthName = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-            return <option key={m} value={m}>{monthName}</option>;
-          })}
-        </select>
+        {isAddingMonth ? (
+          <input 
+            type="month"
+            className="month-selector"
+            style={{ width: 'auto' }}
+            onChange={(e) => {
+              if (e.target.value) {
+                const newMonth = e.target.value;
+                setBudgets(prev => ({ ...prev, [newMonth]: activeBudget }));
+                setSelectedMonth(newMonth);
+              }
+              setIsAddingMonth(false);
+            }}
+            onBlur={() => setIsAddingMonth(false)}
+            autoFocus
+          />
+        ) : (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select 
+              className="month-selector"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              {availableMonths.map(m => {
+                const [year, month] = m.split('-');
+                const date = new Date(year, parseInt(month) - 1);
+                const monthName = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                return <option key={m} value={m}>{monthName}</option>;
+              })}
+            </select>
+            <button 
+              className="month-selector add-month-btn" 
+              onClick={() => setIsAddingMonth(true)}
+              aria-label="Add new month"
+              title="Add a different month"
+            >
+              +
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="stats-container">

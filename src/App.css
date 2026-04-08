@@ -52,7 +52,22 @@
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.add-month-btn {
+  padding: 8px 12px;
+  background: var(--blue-color);
+  color: #ffffff;
+  border-color: var(--blue-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.add-month-btn:hover {
+  opacity: 0.9;
 }
 
 .stats-container {
@@ -67,7 +82,7 @@
   border-radius: 4px;
   margin-bottom: 24px;
   overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .progress-fill {
@@ -99,9 +114,17 @@
   font-weight: 700;
 }
 
-.stat-amount.budget { color: var(--text-primary); }
-.stat-amount.spent { color: var(--red-color); }
-.stat-amount.remaining { color: var(--green-color); }
+.stat-amount.budget {
+  color: var(--text-primary);
+}
+
+.stat-amount.spent {
+  color: var(--red-color);
+}
+
+.stat-amount.remaining {
+  color: var(--green-color);
+}
 
 .edit-link {
   font-size: 12px;
@@ -200,7 +223,9 @@
 }
 
 /* Specific flex weights for inputs */
-.expense-form input[type="text"] { flex: 2; }
+.expense-form input[type="text"] {
+  flex: 2;
+}
 
 .expense-form button {
   background: var(--blue-color);
@@ -345,11 +370,11 @@
   .stats-container {
     flex-direction: column;
   }
-  
+
   .expense-form {
     flex-direction: column;
   }
-  
+
   .expense-form input[type="text"] {
     flex: 1;
   }
