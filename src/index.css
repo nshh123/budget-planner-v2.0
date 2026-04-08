@@ -64,6 +64,17 @@ body {
   background-color: #0f172a;
 }
 
+/* Media Query hack: Disable 'fixed' behavior on smaller screens */
+@media (max-width: 768px) {
+  body {
+    position: relative;
+  }
+  body::before {
+    position: absolute;
+    height: 100%;
+  }
+}
+
 #root {
   width: 100%;
   max-width: 800px;
