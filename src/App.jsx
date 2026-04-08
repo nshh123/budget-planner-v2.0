@@ -22,6 +22,13 @@ const getCurrentMonthYYYYMM = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
+const getDefaultDateTimeForMonth = (monthYYYYMM) => {
+  if (monthYYYYMM === getCurrentMonthYYYYMM()) {
+    return getCurrentDateTimeLocal();
+  }
+  return `${monthYYYYMM}-01T12:00`;
+};
+
 const getExpenseMonth = (expense) => {
   if (!expense.timestamp) return getCurrentMonthYYYYMM();
   return expense.timestamp.slice(0, 7);
@@ -64,6 +71,12 @@ function App() {
   }, [budgets]);
 
   useEffect(() => {
+    if (!editingExpenseId) {
+      setDatetimeInput(getDefaultDateTimeForMonth(selectedMonth));
+    }
+  }, [selectedMonth]);
+
+  useEffect(() => {
     localStorage.setItem('budgetPlanner_expenses', JSON.stringify(expenses));
   }, [expenses]);
 
@@ -94,6 +107,16 @@ function App() {
   const totalSpent = filteredExpenses.reduce((acc, curr) => acc + parseFloat(curr.amount), 0);
   const remaining = activeBudget - totalSpent;
   const spentPercentage = activeBudget > 0 ? (totalSpent / activeBudget) * 100 : 0;
+
+  const getMinMaxForMonth = (monthYYYYMM) => {
+    const [y, m] = monthYYYYMM.split('-');
+    const lastDay = new Date(y, m, 0).getDate();
+    return {
+      minDate: `${monthYYYYMM}-01T00:00`,
+      maxDate: `${monthYYYYMM}-${String(lastDay).padStart(2, '0')}T23:59`
+    };
+  };
+  const { minDate, maxDate } = getMinMaxForMonth(selectedMonth);
 
   const handleEditBudget = () => {
     setBudgetInput(activeBudget.toString());
@@ -147,7 +170,7 @@ function App() {
 
     setDescInput('');
     setAmountInput('');
-    setDatetimeInput(getCurrentDateTimeLocal());
+    setDatetimeInput(getDefaultDateTimeForMonth(selectedMonth));
   };
 
   const handleEditClick = (expense) => {
@@ -351,6 +374,8 @@ function App() {
             type="datetime-local"
             value={datetimeInput}
             onChange={(e) => setDatetimeInput(e.target.value)}
+            min={minDate}
+            max={maxDate}
             required
           />
           <button type="submit">{editingExpenseId ? 'Update' : 'Add'}</button>
@@ -362,7 +387,7 @@ function App() {
                 setEditingExpenseId(null);
                 setDescInput('');
                 setAmountInput('');
-                setDatetimeInput(getCurrentDateTimeLocal());
+                setDatetimeInput(getDefaultDateTimeForMonth(selectedMonth));
               }}
             >
               Cancel
