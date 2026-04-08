@@ -18,17 +18,19 @@ const formatCurrency = (amount) => {
 const DonutChart = ({ expenses }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  // Initialize with all categories at 0 to ensure circle elements are ALWAYS mounted in the exact DOM order, enabling fluid transitions.
+  const baseTotals = Object.keys(CATEGORY_COLORS).reduce((acc, cat) => {
+    acc[cat] = 0;
+    return acc;
+  }, {});
+
   // Aggregate expenses by category
   const categoryTotals = expenses.reduce((acc, curr) => {
     acc[curr.category] = (acc[curr.category] || 0) + parseFloat(curr.amount);
     return acc;
-  }, {});
+  }, baseTotals);
 
   const total = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
-
-  if (total === 0) {
-    return <div className="no-expenses-msg">No expenses added yet.</div>;
-  }
 
   let currentOffset = 0;
   // Circumference of a circle with r=15.9155 is ~100
@@ -36,9 +38,9 @@ const DonutChart = ({ expenses }) => {
   const radius = 15.91549430918954;
   const circumference = 100;
 
-  const chartSegments = Object.keys(categoryTotals).map((category, index) => {
+  const chartSegments = Object.keys(categoryTotals).map((category) => {
     const value = categoryTotals[category];
-    const percentage = (value / total) * 100;
+    const percentage = total > 0 ? (value / total) * 100 : 0;
 
     // Create the stroke dasharray and offset for the current segment
     const dasharray = `${percentage} ${circumference - percentage}`;
@@ -49,7 +51,7 @@ const DonutChart = ({ expenses }) => {
 
     return (
       <circle
-        key={index}
+        key={category}
         cx="21"
         cy="21"
         r={radius}
@@ -98,7 +100,9 @@ const DonutChart = ({ expenses }) => {
         </svg>
       </div>
       <div className="chart-legend">
-        {Object.keys(categoryTotals).map(category => (
+        {Object.keys(categoryTotals)
+          .filter(cat => categoryTotals[cat] > 0)
+          .map(category => (
           <div
             key={category}
             className="legend-item"
