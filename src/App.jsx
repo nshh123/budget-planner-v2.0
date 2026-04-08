@@ -23,6 +23,8 @@ function App() {
   const [descInput, setDescInput] = useState('');
   const [amountInput, setAmountInput] = useState('');
   const [categoryInput, setCategoryInput] = useState(CATEGORIES[0]);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [budgetInput, setBudgetInput] = useState('');
 
   // Sync to local storage
   useEffect(() => {
@@ -46,12 +48,21 @@ function App() {
   const remaining = budget - totalSpent;
 
   const handleEditBudget = () => {
-    const newBudgetStr = window.prompt("Enter new total budget:", budget);
-    if (newBudgetStr !== null) {
-      const parsed = parseFloat(newBudgetStr);
-      if (!isNaN(parsed) && parsed > 0) {
-        setBudget(parsed);
-      }
+    setBudgetInput(budget.toString());
+    setIsEditingBudget(true);
+  };
+
+  const handleSaveBudget = () => {
+    const parsed = parseFloat(budgetInput);
+    if (!isNaN(parsed) && parsed > 0) {
+      setBudget(parsed);
+    }
+    setIsEditingBudget(false);
+  };
+
+  const handleBudgetKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSaveBudget();
     }
   };
 
@@ -63,7 +74,8 @@ function App() {
       id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
       description: descInput,
       amount: parseFloat(amountInput).toFixed(2),
-      category: categoryInput
+      category: categoryInput,
+      timestamp: new Date().toISOString()
     };
 
     setExpenses([newExpense, ...expenses]);
@@ -91,8 +103,32 @@ function App() {
         <div className="stat-card">
           <div className="stat-title">Total Budget</div>
           <div className="stat-amount budget">
-            Rwf {budget.toFixed(2)}
-            <span className="edit-link" onClick={handleEditBudget}>Edit</span>
+            {isEditingBudget ? (
+              <input 
+                type="number"
+                value={budgetInput}
+                onChange={(e) => setBudgetInput(e.target.value)}
+                onBlur={handleSaveBudget}
+                onKeyDown={handleBudgetKeyDown}
+                autoFocus
+                style={{ 
+                  width: '100px', 
+                  fontSize: '20px', 
+                  fontWeight: '700', 
+                  fontFamily: 'inherit', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '6px', 
+                  padding: '2px 8px',
+                  background: 'var(--app-bg)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+            ) : (
+              <>
+                Rwf {budget.toFixed(2)}
+                <span className="edit-link" onClick={handleEditBudget}>Edit</span>
+              </>
+            )}
           </div>
         </div>
         <div className="stat-card">
@@ -151,7 +187,12 @@ function App() {
               <li key={expense.id} className="transaction-item">
                 <div className="transaction-info">
                   <span className="transaction-name">{expense.description}</span>
-                  <span className="transaction-category">{expense.category}</span>
+                  <span className="transaction-category">
+                    {expense.category} 
+                    {expense.timestamp && ` • ${new Date(expense.timestamp).toLocaleString(undefined, { 
+                      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                    })}`}
+                  </span>
                 </div>
                 <div className="transaction-right">
                   <span className="transaction-amount">-Rwf {expense.amount}</span>
