@@ -4,6 +4,19 @@ import DonutChart from './components/DonutChart';
 
 const CATEGORIES = ['Housing', 'Food', 'Utilities', 'Transport', 'Entertainment'];
 
+const formatCurrency = (amount) => {
+  return parseFloat(amount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+const getCurrentDateTimeLocal = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 function App() {
   const [budget, setBudget] = useState(() => {
     const saved = localStorage.getItem('budgetPlanner_budget');
@@ -23,6 +36,7 @@ function App() {
   const [descInput, setDescInput] = useState('');
   const [amountInput, setAmountInput] = useState('');
   const [categoryInput, setCategoryInput] = useState(CATEGORIES[0]);
+  const [datetimeInput, setDatetimeInput] = useState(getCurrentDateTimeLocal);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState('');
 
@@ -75,12 +89,13 @@ function App() {
       description: descInput,
       amount: parseFloat(amountInput).toFixed(2),
       category: categoryInput,
-      timestamp: new Date().toISOString()
+      timestamp: new Date(datetimeInput).toISOString()
     };
 
     setExpenses([newExpense, ...expenses]);
     setDescInput('');
     setAmountInput('');
+    setDatetimeInput(getCurrentDateTimeLocal());
   };
 
   const handleDeleteExpense = (id) => {
@@ -125,7 +140,7 @@ function App() {
               />
             ) : (
               <>
-                Rwf {budget.toFixed(2)}
+                Rwf {formatCurrency(budget)}
                 <span className="edit-link" onClick={handleEditBudget}>Edit</span>
               </>
             )}
@@ -133,11 +148,11 @@ function App() {
         </div>
         <div className="stat-card">
           <div className="stat-title">Total Spent</div>
-          <div className="stat-amount spent">Rwf {totalSpent.toFixed(2)}</div>
+          <div className="stat-amount spent">Rwf {formatCurrency(totalSpent)}</div>
         </div>
         <div className="stat-card">
           <div className="stat-title">Remaining</div>
-          <div className="stat-amount remaining">Rwf {remaining.toFixed(2)}</div>
+          <div className="stat-amount remaining">Rwf {formatCurrency(remaining)}</div>
         </div>
       </div>
 
@@ -173,6 +188,12 @@ function App() {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
+          <input 
+            type="datetime-local" 
+            value={datetimeInput}
+            onChange={(e) => setDatetimeInput(e.target.value)}
+            required
+          />
           <button type="submit">Add</button>
         </form>
       </div>
@@ -195,7 +216,7 @@ function App() {
                   </span>
                 </div>
                 <div className="transaction-right">
-                  <span className="transaction-amount">-Rwf {expense.amount}</span>
+                  <span className="transaction-amount">-Rwf {formatCurrency(expense.amount)}</span>
                   <button 
                     className="delete-btn" 
                     onClick={() => handleDeleteExpense(expense.id)}

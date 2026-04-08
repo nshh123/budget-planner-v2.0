@@ -8,6 +8,13 @@ const CATEGORY_COLORS = {
   Entertainment: 'var(--category-entertainment)'
 };
 
+const formatCurrency = (amount) => {
+  return parseFloat(amount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
 const DonutChart = ({ expenses }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -79,13 +86,13 @@ const DonutChart = ({ expenses }) => {
           {selectedCategory ? (
             <text x="21" y="21" textAnchor="middle" dominantBaseline="middle" fontSize="2.5" fill="var(--text-primary)" style={{ pointerEvents: 'none' }}>
               <tspan x="21" dy="-3" fontWeight="600" opacity="0.8">{selectedCategory}</tspan>
-              <tspan x="21" dy="3.5" fontSize="3.5" fontWeight="700">Rwf {categoryTotals[selectedCategory].toFixed(2)}</tspan>
+              <tspan x="21" dy="3.5" fontSize="3.5" fontWeight="700">Rwf {formatCurrency(categoryTotals[selectedCategory])}</tspan>
               <tspan x="21" dy="3.5" opacity="0.8">{((categoryTotals[selectedCategory] / total) * 100).toFixed(1)}%</tspan>
             </text>
           ) : (
             <text x="21" y="21" textAnchor="middle" dominantBaseline="middle" fontSize="3" fill="var(--text-secondary)" style={{ pointerEvents: 'none' }}>
               <tspan x="21" dy="0">Total:</tspan>
-              <tspan x="21" dy="4" fontSize="3.5" fontWeight="700" fill="var(--text-primary)">Rwf {total.toFixed(2)}</tspan>
+              <tspan x="21" dy="4" fontSize="3.5" fontWeight="700" fill="var(--text-primary)">Rwf {formatCurrency(total)}</tspan>
             </text>
           )}
         </svg>
