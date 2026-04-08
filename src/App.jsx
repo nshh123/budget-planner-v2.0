@@ -56,6 +56,7 @@ function App() {
   const [budgetInput, setBudgetInput] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthYYYYMM());
   const [isAddingMonth, setIsAddingMonth] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
 
   // Sync to local storage
   useEffect(() => {
@@ -120,18 +121,54 @@ function App() {
     e.preventDefault();
     if (!descInput.trim() || !amountInput || parseFloat(amountInput) <= 0) return;
 
-    const newExpense = {
-      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
-      description: descInput,
-      amount: parseFloat(amountInput).toFixed(2),
-      category: categoryInput,
-      timestamp: new Date(datetimeInput).toISOString()
-    };
+    if (editingExpenseId) {
+      setExpenses(expenses.map(exp => 
+        exp.id === editingExpenseId 
+        ? {
+            ...exp,
+            description: descInput,
+            amount: parseFloat(amountInput).toFixed(2),
+            category: categoryInput,
+            timestamp: new Date(datetimeInput).toISOString()
+          }
+        : exp
+      ));
+      setEditingExpenseId(null);
+    } else {
+      const newExpense = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+        description: descInput,
+        amount: parseFloat(amountInput).toFixed(2),
+        category: categoryInput,
+        timestamp: new Date(datetimeInput).toISOString()
+      };
+      setExpenses([newExpense, ...expenses]);
+    }
 
-    setExpenses([newExpense, ...expenses]);
     setDescInput('');
     setAmountInput('');
     setDatetimeInput(getCurrentDateTimeLocal());
+  };
+
+  const handleEditClick = (expense) => {
+    setDescInput(expense.description);
+    setAmountInput(expense.amount);
+    setCategoryInput(expense.category);
+    
+    if (expense.timestamp) {
+       const d = new Date(expense.timestamp);
+       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+       setDatetimeInput(d.toISOString().slice(0, 16));
+    } else {
+       setDatetimeInput(getCurrentDateTimeLocal());
+    }
+    
+    setEditingExpenseId(expense.id);
+    
+    const formSection = document.querySelector('.add-expense-section');
+    if (formSection) {
+      formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   const handleDeleteExpense = (id) => {
@@ -284,7 +321,7 @@ function App() {
       </div>
 
       <div className="add-expense-section">
-        <h2 className="section-title">Add New Expense</h2>
+        <h2 className="section-title">{editingExpenseId ? 'Edit Expense' : 'Add New Expense'}</h2>
         <form className="expense-form" onSubmit={handleAddExpense}>
           <input 
             type="text" 
@@ -316,7 +353,21 @@ function App() {
             onChange={(e) => setDatetimeInput(e.target.value)}
             required
           />
-          <button type="submit">Add</button>
+          <button type="submit">{editingExpenseId ? 'Update' : 'Add'}</button>
+          {editingExpenseId && (
+            <button 
+              type="button" 
+              className="cancel-btn"
+              onClick={() => {
+                setEditingExpenseId(null);
+                setDescInput('');
+                setAmountInput('');
+                setDatetimeInput(getCurrentDateTimeLocal());
+              }}
+            >
+              Cancel
+            </button>
+          )}
         </form>
       </div>
 
@@ -341,7 +392,16 @@ function App() {
             {filteredExpenses.map(expense => (
               <li key={expense.id} className="transaction-item">
                 <div className="transaction-info">
-                  <span className="transaction-name">{expense.description}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="transaction-name">{expense.description}</span>
+                    <button 
+                      className="edit-btn" 
+                      onClick={() => handleEditClick(expense)}
+                      aria-label="Edit expense"
+                    >
+                      ✎
+                    </button>
+                  </div>
                   <span className="transaction-category">
                     {expense.category} 
                     {expense.timestamp && ` • ${new Date(expense.timestamp).toLocaleString(undefined, { 

@@ -243,6 +243,15 @@
   opacity: 0.9;
 }
 
+.expense-form button.cancel-btn {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.expense-form button.cancel-btn:hover {
+  background: #cbd5e1;
+}
+
 .recent-transactions {
   background: var(--card-bg);
   border-radius: 8px;
@@ -350,6 +359,19 @@
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  color: var(--blue-color);
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.edit-btn:hover {
+  opacity: 1;
 }
 
 .delete-btn {
